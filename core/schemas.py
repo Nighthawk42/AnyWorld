@@ -24,6 +24,7 @@ class ClientPayload(StrictModel):
         "end_game",
         "retry_round",
         "journal_request",
+        "remember",
     ]
     data: dict[str, Any]
 
@@ -194,6 +195,10 @@ class JournalInput(StrictModel):
     mode: Literal["replay", "history", "export"] = "history"
 
 
+class RememberInput(StrictModel):
+    fact: str = Field(min_length=1, max_length=1000)
+
+
 def validate_client_data(payload: ClientPayload) -> None:
     schema = {
         "auth": AuthInput,
@@ -201,5 +206,6 @@ def validate_client_data(payload: ClientPayload) -> None:
         "action": ActionInput,
         "scenario_init": ScenarioInput,
         "journal_request": JournalInput,
+        "remember": RememberInput,
     }.get(payload.event_type, StrictModel)
     schema.model_validate(payload.data)

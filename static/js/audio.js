@@ -158,6 +158,10 @@ function attachTTSButton(entryElement, text) {
     });
 
     label.appendChild(btn);
+
+    if (audioState.autoNarrate && !audioState.activeAudio) {
+        toggleSpeech(text, btn);
+    }
 }
 
 async function toggleSpeech(text, btn) {
@@ -226,6 +230,27 @@ async function toggleSpeech(text, btn) {
     }
 }
 
+function setTTSAuto(enabled) {
+    audioState.autoNarrate = Boolean(enabled);
+    try {
+        localStorage.setItem("anyworld_tts_auto", audioState.autoNarrate ? "true" : "false");
+    } catch {
+        // Local storage unavailable
+    }
+}
+
+function isTTSAuto() {
+    return Boolean(audioState.autoNarrate);
+}
+
+try {
+    audioState.autoNarrate = localStorage.getItem("anyworld_tts_auto") === "true";
+} catch {
+    audioState.autoNarrate = false;
+}
+
 // Expose globals for other modules
 window.initAudio = initAudio;
 window.attachTTSButton = attachTTSButton;
+window.setTTSAuto = setTTSAuto;
+window.isTTSAuto = isTTSAuto;

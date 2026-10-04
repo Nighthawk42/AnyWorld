@@ -41,6 +41,7 @@ const elements = {
     chatInput: document.getElementById("chat-input"),
     actionForm: document.getElementById("input-pane"),
     actionInput: document.getElementById("action-input"),
+    micButton: document.getElementById("mic-button"),
     dmThinking: document.getElementById("dm-thinking"),
     connectionStatus: document.getElementById("connection-status"),
     tokenUsage: document.getElementById("token-usage"),

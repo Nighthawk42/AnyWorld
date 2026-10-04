@@ -152,7 +152,7 @@ function handleMessage(message, replayed = false) {
         elements.actionInput.disabled = true;
         elements.endGameButton.hidden = true;
         elements.retryRoundButton.hidden = true;
-        appendText(elements.chatMessages, `System: ${payload.msg}`, "chat-entry", MAX_CHAT_ENTRIES);
+        appendChat(elements.chatMessages, "System", payload.msg, "chat-entry system-chat", MAX_CHAT_ENTRIES);
     } else if (type === "scenario_ready") {
         clientSession.scenarioSubmitting = false;
         appendScenario(payload.original_scenario, true);
@@ -274,7 +274,12 @@ elements.startButton.addEventListener("click", () => {
 elements.chatForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const message = elements.chatInput.value.trim();
-    if (message && send("chat", { message })) {
+    if (!message) return;
+    if (window.handleSlashCommand && window.handleSlashCommand(message, "chat")) {
+        elements.chatInput.value = "";
+        return;
+    }
+    if (send("chat", { message })) {
         elements.chatInput.value = "";
     }
 });
@@ -282,14 +287,21 @@ elements.chatForm.addEventListener("submit", (event) => {
 elements.actionForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const action = elements.actionInput.value.trim();
-    if (action && !elements.actionInput.disabled) {
-        const previous = clientSession.pendingAction;
-        clientSession.pendingAction = previous && previous.action === action &&
-            previous.session_id === clientSession.sessionId && previous.round_number === clientSession.roundNumber
-            ? previous : { action, action_id: createClientId(), session_id: clientSession.sessionId,
-                round_number: clientSession.roundNumber };
+    if (!action || elements.actionInput.disabled) return;
+    if (window.handleSlashCommand && window.handleSlashCommand(action, "action")) {
+        elements.actionInput.value = "";
         saveDraft();
-        if (send("action", clientSession.pendingAction)) elements.actionInput.disabled = true;
+        return;
+    }
+    const previous = clientSession.pendingAction;
+    clientSession.pendingAction = previous && previous.action === action &&
+        previous.session_id === clientSession.sessionId && previous.round_number === clientSession.roundNumber
+        ? previous : { action, action_id: createClientId(), session_id: clientSession.sessionId,
+            round_number: clientSession.roundNumber };
+    saveDraft();
+    if (send("action", clientSession.pendingAction)) {
+        elements.actionInput.disabled = true;
+        if (elements.micButton) elements.micButton.disabled = true;
     }
 });
 
@@ -302,3 +314,6 @@ elements.reclaimButton.addEventListener("click", () => {
 
 
 connectSocket();
+if (window.initAudio) {
+    window.initAudio();
+}

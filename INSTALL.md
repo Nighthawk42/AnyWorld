@@ -411,6 +411,8 @@ flake8 app.py api core logic tests
 python -B -m pytest -p no:cacheprovider
 # Client reconnect and password-hashing regressions (requires Node.js):
 node --test tests/client_reconnect.test.cjs
+# Client slash-command regressions (requires Node.js):
+node --test tests/client_commands.test.cjs
 ```
 
 Tests use isolated settings and fake model clients; they do not require a running LLM.

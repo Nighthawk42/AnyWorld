@@ -50,6 +50,10 @@ class FakeResolver:
         self.scenario = ""
         self.rounds = 0
         self.start_names = []
+        self.pinned_facts: list[str] = []
+
+    def add_pinned_fact(self, fact: str) -> None:
+        self.pinned_facts.append(fact)
 
     def set_genesis(self, scenario: str, guidance: str = "") -> None:
         """Record the scenario."""

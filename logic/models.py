@@ -164,6 +164,10 @@ class ResolutionManager(Protocol):
 
     def configure_chance_rule(self, rule: StructuredChanceRule | None) -> None: ...
 
+    def add_pinned_fact(self, fact: str) -> None:
+        """Record an authoritative fact to be permanently preserved in LLM context."""
+        ...
+
     async def close(self) -> None:
         """Release backend resources."""
         ...

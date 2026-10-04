@@ -168,6 +168,26 @@ class LobbyMixin:
             ServerEvent(type="chat_echo", payload={"name": player.name, "chat": message})
         )
 
+    async def _remember(self: "GameEngine", client_id: str, data: dict[str, object]) -> None:
+        """Record an authoritative fact to be permanently preserved in LLM context."""
+        fact = clean_text(data.get("fact"), "fact", 1_000)
+        async with self.lock:
+            if not CURRENT_OWNER.get()():
+                return
+            player = self.players.get(client_id)
+            if player is None or not player.is_connected:
+                raise ValueError("Authenticate before recording memory.")
+            if self.state is GameState.ENDED:
+                raise ValueError("Cannot pin memories after the game has ended.")
+            if hasattr(self.resolver, "add_pinned_fact"):
+                self.resolver.add_pinned_fact(fact)
+        await self._broadcast(
+            ServerEvent(
+                type="system_msg",
+                payload={"msg": f"📌 Pinned memory ({player.name}): {fact}"},
+            )
+        )
+
     async def _initialize_scenario(
         self: "GameEngine", client_id: str, data: dict[str, object]
     ) -> None:

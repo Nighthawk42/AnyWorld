@@ -76,7 +76,12 @@ automatically approved product changes. Proposed fixes belong in TASKS.md.
   uncertain; they are not rejected solely because the requested target seems impossible.
   No generation occurs just because a player joins.
 - Client envelope: event_type plus object data. Events: auth, chat, action, scenario_init,
-  start_game, end_game, retry_round, journal_request. Auth sends name and SHA-256 password_digest
+  start_game, end_game, retry_round, journal_request, remember. `remember` (RememberInput, fact
+  up to 1,000 characters) lets any connected player pin a fact before the game ends; the
+  resolver's `add_pinned_fact()` deduplicates it, the server broadcasts a system_msg, and
+  `set_genesis()` clears pins. Slash commands (`static/js/commands.js`) are parsed client-side:
+  /roll, /me and /ooc send ordinary chat (rolls use browser randomness, not server dice),
+  /remember sends `remember`, and /help, /clear, /theme and /tts stay local. Auth sends name and SHA-256 password_digest
   of password + client ID. Reauthentication additionally requires the private reconnect_token from auth_ok,
   retained in browser sessionStorage. The ID/token pair is also saved per name in localStorage
   for recovery after re-entering name/password at the same origin; passwords/digests are not stored
@@ -87,7 +92,8 @@ automatically approved product changes. Proposed fixes belong in TASKS.md.
   Turn directives use active_player_id.
 - `core/schemas.py`: RoundResolution player_resolutions keys must be exact player names; runtime
   validation rejects other keys. ScenarioTitle contains only title. DicePlan has rolls and hidden_rolls.
-  ContextSummary has world_state, player_states, important_npcs and unresolved_threads. Models forbid extra fields and coercion.
+  ContextSummary has world_state, player_states, important_npcs and unresolved_threads.
+  RememberInput has fact. Models forbid extra fields and coercion.
 - `logic/dice.py` action dice use integers 0..100 inclusive. Percentage-event dice use 1..100
   inclusive and succeed at roll <= chance_percent, giving exact 0% and 100% boundaries.
   Do not silently change either probability distribution.
@@ -109,8 +115,8 @@ automatically approved product changes. Proposed fixes belong in TASKS.md.
 
 ## Context and cache guidance
 
-Requests contain system prompt, fixed scenario/private guidance, separate durable memory, recent
-history and current input. Dice planning receives the same authoritative context plus the public
+Requests contain system prompt, fixed scenario/private guidance, pinned facts (a separate system
+message, never compacted), separate durable memory, recent history and current input. Dice planning receives the same authoritative context plus the public
 state. Compaction budgets the upcoming request and merges older rounds into memory transactionally;
 failed, empty or expanding summaries preserve the original context. There is no FIFO-forget fallback.
 Rounds use dice planning and narrative resolution; conditional chance triggers or eligibility

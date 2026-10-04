@@ -46,6 +46,7 @@ class GameEngine(LobbyMixin):
         "action": "_submit_action",
         "retry_round": "_retry_round",
         "journal_request": "_journal_page",
+        "remember": "_remember",
     }
 
     def __init__(self, sender: EventSender, resolver: ResolutionManager) -> None:

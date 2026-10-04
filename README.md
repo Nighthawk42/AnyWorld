@@ -105,6 +105,25 @@ story direction, pacing, or other compatible presentation choices. The AI should
 steering consistently without quoting the guidance. Do not put percentage-based rules in this
 field; the server rejects them so the game can never accept more than one percentage event.
 
+## Slash commands
+
+Type these in the chat or action box:
+
+| Command | Effect |
+| --- | --- |
+| `/roll 1d20+5` | Rolls dice and posts the result to party chat (also `2d6`, `d%`, `3d8-1`). |
+| `/me draws a rapier` | Posts an emote to party chat. |
+| `/ooc brb` | Posts an out-of-character chat message. |
+| `/remember <fact>` | Pins a fact into the AI's permanent memory and announces it to the party. |
+| `/tts on` / `/tts off` | Turns automatic narration playback on or off (needs the optional speech server). |
+| `/theme <name>` | Switches the color theme. |
+| `/clear` | Clears your chat window. |
+| `/help` | Lists the commands. |
+
+`/roll`, `/me` and `/ooc` are ordinary chat: the AI does not see them, and `/roll` results are
+for fun rather than the game's authoritative dice. Pinned facts are never summarized away; any
+player can pin one once the game is set up, so agree on them as a party.
+
 ## Rejoining a game
 
 A disconnected tab tries to reconnect automatically. If you close it, open the same game address

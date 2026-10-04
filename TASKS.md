@@ -177,6 +177,11 @@ Existing history/benchmark observations are retained and were not independently 
   - Validate that `acompletion(response_format=schema)` returns `message.parsed` for each supported provider with a live run; current coverage uses fake clients. The `beta.chat.completions.parse` branch is now reachable only from tests.
   - Acceptance: each documented provider completes title, opening, dice and round requests live, with correct output caps and schemas.
 
+- [ ] **P1 - Constrain pinned facts (/remember)** - logic/lobby.py:\_remember; logic/llm_manager.py:add_pinned_fact, fixed context.
+  - Any player can pin up to 1,000 characters at a time, without a count or total-token limit, into a system-role "Authoritative Pinned Facts" message that compaction never trims. This bypasses the rule that player text is only an attempted action, and enough pins can make every request exceed the context budget.
+  - Decide who may pin (host-only or host approval), frame pins as player-submitted rather than authoritative, budget them with the fixed context and cap their total size. Pins made before scenario setup are silently cleared by `set_genesis()`; reject or keep them. Record pins in the HTML transcript.
+  - Acceptance: a player cannot override established facts or rules through a pin, pin volume cannot break request budgets, and pins survive compaction.
+
 ## Waiting On
 
 - [ ] **Measure representative session length and player idle time** - Backend profile received and live runs completed on 2026-09-15: llama.cpp b10964/b29c606e2, Gemma 4 26B A4B Q4_K_XXL, canonical template, one 128000-token slot and q8_0 KV. A synthetic OpenAI run on 2026-09-27 completed 16 rounds without added inter-round waits; it stopped at round 17 after three dice-planning failures and repeated compaction rollbacks. Typical human delay/session length and idle-time effects remain unmeasured.

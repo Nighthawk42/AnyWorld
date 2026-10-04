@@ -80,6 +80,7 @@ class LLMContextManager:
         self.genesis_state: dict[str, str] | None = None
         self.history: list[dict[str, str]] = []
         self.memory: dict[str, str] | None = None
+        self.pinned_facts: list[str] = []
         self.private_guidance = ""
         self.chance_rule_interpretation: ChanceRuleInterpretation | None = None
         self._chance_rule_prepared = False
@@ -150,6 +151,7 @@ class LLMContextManager:
         self._retained_measurement = None
         self.budget.clear_caches()
         self.memory = None
+        self.pinned_facts.clear()
         self.private_guidance = guidance
         self.chance_rule_interpretation = None
         self._chance_rule_prepared = False
@@ -261,6 +263,13 @@ class LLMContextManager:
                 structured=True,
             )
             self._chance_rule_prepared = True
+
+    def add_pinned_fact(self, fact: str) -> None:
+        """Record an authoritative fact to be permanently preserved in fixed LLM context."""
+        cleaned = fact.strip()
+        if cleaned and cleaned not in self.pinned_facts:
+            self.pinned_facts.append(cleaned)
+            self._retained_measurement = None
 
     async def _plan_chance_triggers(
         self, round_buffer: dict[str, str], current_state: str
@@ -417,9 +426,19 @@ class LLMContextManager:
         if kind == "chance_trigger" and genesis is not None:
             scenario = genesis["content"].split("\n\nAdditional DM Guidance:", 1)[0]
             genesis = {"role": "user", "content": scenario}
+        pinned_msg = (
+            {
+                "role": "system",
+                "content": "Authoritative Pinned Facts (Established Truths):\n"
+                + "\n".join(f"- {f}" for f in self.pinned_facts),
+            }
+            if self.pinned_facts
+            else None
+        )
         return [
             system,
             *([genesis] if genesis else []),
+            *([pinned_msg] if pinned_msg else []),
             *([self.memory] if self.memory else []),
         ]
 
