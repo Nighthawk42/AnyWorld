@@ -265,18 +265,25 @@ def test_manager_round_lifecycle_groups_provider_hooks(tmp_path, monkeypatch):
     settings.llm.debug_raw_responses = True
     body = json.dumps(
         {
+            "id": "probe",
+            "object": "chat.completion",
+            "created": 0,
+            "model": "test",
             "choices": [
                 {
+                    "index": 0,
+                    "finish_reason": "stop",
                     "message": {
+                        "role": "assistant",
                         "content": json.dumps(
                             {
                                 "global_narrative": "A line.\nAnother line.",
                                 "player_resolutions": {},
                             }
-                        )
-                    }
+                        ),
+                    },
                 }
-            ]
+            ],
         }
     )
 

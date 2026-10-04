@@ -7,7 +7,7 @@ import os
 import httpx
 import pytest
 
-from core.config import DEFAULT_CONFIG_PATH, Settings, settings
+from core.config import Settings, settings
 from core.schemas import AuditVerdict, ChanceEvent, ChanceEventResult, DicePlan, RoundResolution
 from logic.llm.auditing import classify_hidden_checks
 from logic.llm.errors import LLMResolutionError
@@ -37,12 +37,18 @@ def test_client_ignores_inherited_organization_and_project(monkeypatch, provider
             super().__init__(**options)
 
     monkeypatch.setattr(llm_manager, "AsyncOpenAI", ClientWithTransport)
+    import any_llm.providers.openai.base as openai_base
+
+    monkeypatch.setattr(openai_base, "AsyncOpenAI", ClientWithTransport)
 
     async def run():
         manager = LLMContextManager()
         manager.client = manager._create_client()
         try:
-            await manager.client.models.list()
+            underlying = getattr(manager.client, "client", manager.client)
+            await underlying.models.list()
+            assert underlying.organization is None
+            assert underlying.project is None
         finally:
             await manager.close()
 
@@ -98,7 +104,7 @@ def test_story_prompt_prioritizes_plot_progress_and_rare_rolls():
 
 def test_connection_annotations_explain_server_lifecycle():
     """Connection metadata is identified clearly in both narrative prompts."""
-    configured = Settings.load(DEFAULT_CONFIG_PATH).llm.system_prompt
+    configured = Settings.load().llm.system_prompt
     resolution = prompts.prepare_request_prompt(
         prompts.resolution_prompt({"Alice": "Wait."}), is_resolution=True
     )["content"]

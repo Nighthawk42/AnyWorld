@@ -13,6 +13,9 @@ You need Python 3.11 or newer on the server. Anyworld supports a local llama.cpp
 direct OpenAI API access; direct OpenAI operation has been tested live with `gpt-5.6-luna`.
 With the OpenAI backend, narration follows the language of the host's scenario, allowing
 non-English play. The local compatible backend currently requests English narration.
+Other providers supported by any-llm (such as Anthropic or Ollama) can be selected but have not
+been tested end to end. An optional audio.cpp speech server adds narration playback and
+push-to-talk action input.
 
 `config.example.yaml` is an optional template to copy to your local `config.yaml`; it is not
 loaded automatically. Set distinct host and player passwords in the local configuration or

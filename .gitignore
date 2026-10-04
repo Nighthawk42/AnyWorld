@@ -20,4 +20,5 @@ pytest-output.txt
 benchmarks/*
 !benchmarks/benchmark_chance_events.py
 .env
+uv.lock
 

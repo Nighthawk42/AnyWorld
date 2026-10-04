@@ -167,6 +167,16 @@ Existing history/benchmark observations are retained and were not independently 
   - Document that `tokenizer_encoding` is not used for compatible-provider counting when backend tokenization is available, and keep the documented environment overrides aligned with the actual `AD_*` settings behavior.
   - Acceptance: the installation guide accurately describes both provider paths and does not imply that a local encoding setting overrides backend tokenizer results.
 
+- [ ] **P1 - Authenticate and bound the audio HTTP routes** - api/audio.py; logic/audio.py.
+  - `/api/audio/*` has no game authentication, so anyone reaching the port can drive the speech backend, choose arbitrary models and read the backend endpoint from `/status`. `/transcribe` reads the whole upload into memory, and `/speech` accepts 10,000-character text plus unbounded base64 voice references.
+  - Require an authenticated player (for example the client ID plus reconnect token), cap upload and reference sizes, rate-limit per player, and stop exposing the backend URL and client model overrides.
+  - Acceptance: unauthenticated and oversized requests are rejected before reaching the backend; authenticated players keep narration and push-to-talk.
+
+- [ ] **P2 - Make provider-specific branches any-llm aware** - logic/llm/provider.py; logic/llm/tokenization.py; logic/llm/response_schemas.py; logic/llm/prompts.py.
+  - `provider` accepts any any-llm name, but branches still test only `compatible`/`openai`, so other providers get `max_completion_tokens`, OpenAI strict-schema rewriting, skipped `/props` discovery and English-only narration. Classify providers by capability rather than by name.
+  - Validate that `acompletion(response_format=schema)` returns `message.parsed` for each supported provider with a live run; current coverage uses fake clients. The `beta.chat.completions.parse` branch is now reachable only from tests.
+  - Acceptance: each documented provider completes title, opening, dice and round requests live, with correct output caps and schemas.
+
 ## Waiting On
 
 - [ ] **Measure representative session length and player idle time** - Backend profile received and live runs completed on 2026-09-15: llama.cpp b10964/b29c606e2, Gemma 4 26B A4B Q4_K_XXL, canonical template, one 128000-token slot and q8_0 KV. A synthetic OpenAI run on 2026-09-27 completed 16 rounds without added inter-round waits; it stopped at round 17 after three dice-planning failures and repeated compaction rollbacks. Typical human delay/session length and idle-time effects remain unmeasured.

@@ -29,7 +29,7 @@ class LLMConfig(BaseModel):
 
     model_config = ConfigDict(strict=True, extra="forbid")
 
-    provider: Literal["compatible", "openai"] = "compatible"
+    provider: str = Field(default="compatible", min_length=1)
     endpoint: str = Field(default="http://localhost:8033/v1", min_length=1)
     api_key: str = Field(default="sk-no-key-required", min_length=1)
     context_window_size: int = Field(default=8_192, ge=2_048)
@@ -103,6 +103,24 @@ class ServerConfig(BaseModel):
             raise ValueError("host_password and player_password must differ")
 
 
+class AudioConfig(BaseModel):
+    """Audio configuration for audio.cpp or compatible speech/transcription servers."""
+
+    model_config = ConfigDict(strict=True, extra="forbid")
+
+    enabled: bool = False
+    endpoint: str = Field(default="http://localhost:8080", min_length=1)
+    api_key: str = Field(default="sk-no-key-required", min_length=1)
+    tts_model: str = Field(default="pocket-tts", min_length=1)
+    stt_model: str = Field(default="qwen3-asr", min_length=1)
+    default_voice: str | None = None
+    speaking_rate: float = Field(default=1.0, gt=0.1, le=5.0)
+    voice_cloning_enabled: bool = False
+    dm_voice_reference_path: str | None = None
+    dm_voice_reference_text: str | None = None
+    request_timeout_seconds: float = Field(default=30.0, gt=0.0, le=300.0)
+
+
 class Settings(BaseSettings):
     """Root settings model and YAML loader with environment overrides."""
 
@@ -115,6 +133,7 @@ class Settings(BaseSettings):
 
     llm: LLMConfig = Field(default_factory=LLMConfig)
     server: ServerConfig = Field(default_factory=ServerConfig)
+    audio: AudioConfig = Field(default_factory=AudioConfig)
 
     @classmethod
     def load(cls, path: str | Path | None = None) -> "Settings":

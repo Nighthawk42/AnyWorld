@@ -6,6 +6,8 @@ import logging
 from time import perf_counter
 from typing import Any
 
+from any_llm import AnyLLM
+from any_llm.exceptions import AnyLLMError
 from openai import OpenAIError, APIConnectionError, APITimeoutError
 from pydantic import BaseModel, ValidationError
 from core.config import settings
@@ -50,10 +52,16 @@ async def execute(
                 except LLMResolutionError as exc:
                     cause = exc.__cause__
                     status = getattr(cause, "status_code", None)
-                    transient = isinstance(cause, OpenAIError) and (
+                    transient = isinstance(cause, (OpenAIError, AnyLLMError)) and (
                         status in (408, 409, 429)
                         or (status is not None and status >= 500)
-                        or type(cause).__name__ in ("APIConnectionError", "APITimeoutError")
+                        or type(cause).__name__
+                        in (
+                            "APIConnectionError",
+                            "APITimeoutError",
+                            "GatewayTimeoutError",
+                            "RateLimitError",
+                        )
                     )
                     if not transient or attempt == attempt_limit - 1:
                         raise
@@ -82,22 +90,33 @@ async def attempt(
     cap_key = "max_tokens" if settings.llm.provider == "compatible" else "max_completion_tokens"
     effort = self.budget.reasoning_effort(kind)
     template_options = self.budget.template_options(kind)
+    messages_payload = messages if messages else [{"role": "user", "content": ""}]
     try:
         with request_type_context(kind):
-            response = await self.client.beta.chat.completions.parse(
-                model=settings.llm.model_name,
-                messages=messages,
-                response_format=schema,
-                reasoning_effort=effort,
-                **({"extra_body": template_options} if template_options else {}),
-                **{cap_key: self.budget.request_output_limit(kind)},
-            )
+            if isinstance(self.client, AnyLLM):
+                response = await self.client.acompletion(
+                    model=settings.llm.model_name,
+                    messages=messages_payload,
+                    response_format=schema,
+                    reasoning_effort=effort,
+                    **({"extra_body": template_options} if template_options else {}),
+                    **{cap_key: self.budget.request_output_limit(kind)},
+                )
+            else:
+                response = await self.client.beta.chat.completions.parse(
+                    model=settings.llm.model_name,
+                    messages=messages,
+                    response_format=schema,
+                    reasoning_effort=effort,
+                    **({"extra_body": template_options} if template_options else {}),
+                    **{cap_key: self.budget.request_output_limit(kind)},
+                )
         choice = response.choices[0]
         if getattr(choice, "finish_reason", None) == "length":
             raise LLMOutputTruncatedError(
                 "Model output reached its token limit; no result committed."
             )
-        parsed = choice.message.parsed
+        parsed = getattr(choice.message, "parsed", None)
         if parsed is None:
             raise LLMResolutionError("Model returned no validated result.")
         result = schema.model_validate(
@@ -112,6 +131,7 @@ async def attempt(
         raise
     except (
         OpenAIError,
+        AnyLLMError,
         ValidationError,
         IndexError,
         AttributeError,
@@ -124,11 +144,13 @@ async def attempt(
         error = type(exc).__name__
         response = getattr(exc, "completion", response)
         logger.warning("LLM %s failed: %s", kind, error)
-        if error == "LengthFinishReasonError":
+        if error in ("LengthFinishReasonError", "ContextLengthExceededError"):
             raise LLMOutputTruncatedError(
                 "Model output reached its token limit; no result committed."
             ) from exc
-        if isinstance(exc, APIConnectionError) and not isinstance(exc, APITimeoutError):
+        if (isinstance(exc, APIConnectionError) and not isinstance(exc, APITimeoutError)) or (
+            type(exc).__name__ in ("ProviderError", "UpstreamProviderError")
+        ):
             raise LLMBackendUnavailableError(
                 "Could not connect to the LLM backend; no result committed."
             ) from exc

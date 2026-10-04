@@ -6,6 +6,7 @@ import logging
 from time import perf_counter
 from typing import Any
 
+from any_llm import AnyLLM
 from openai import (
     AsyncOpenAI,
     DefaultAsyncHttpxClient,
@@ -95,15 +96,19 @@ class LLMContextManager:
         self._round_started: float | None = None
         self._memory_revision = 0
 
-    def _create_client(self) -> AsyncOpenAI:
-        """Create either a direct OpenAI client or a local compatible client."""
+    def _create_client(self) -> Any:
+        """Create a provider client via any-llm, mapping compatible endpoints."""
+        provider_name = settings.llm.provider
+        is_compatible = provider_name == "compatible"
+        actual_provider = "openai" if is_compatible else provider_name
+
         client_options: dict[str, Any] = {
             "api_key": settings.llm.api_key,
             "timeout": settings.llm.request_timeout_seconds,
             "max_retries": 0,  # Each retry is measured explicitly below.
         }
-        if settings.llm.provider == "compatible":
-            client_options["base_url"] = settings.llm.endpoint
+        if is_compatible or actual_provider in ("llamacpp", "ollama", "lmstudio", "vllm"):
+            client_options["api_base"] = settings.llm.endpoint
         if settings.llm.debug_raw_responses:
             raw_logger = RawResponseLogger()
             self._debug_logger = raw_logger
@@ -113,11 +118,14 @@ class LLMContextManager:
                     "response": [raw_logger.capture],
                 }
             )
-        client = AsyncOpenAI(**client_options)
+        client = AnyLLM.create(actual_provider, unified_exceptions=True, **client_options)
         # Passing None to the constructor would still inherit OPENAI_ORG_ID and
         # OPENAI_PROJECT_ID. Scope this client's requests to its configured API key.
-        client.organization = None
-        client.project = None
+        underlying = getattr(client, "client", client)
+        if hasattr(underlying, "organization"):
+            underlying.organization = None
+        if hasattr(underlying, "project"):
+            underlying.project = None
         return client
 
     def set_genesis(self, scenario: str, guidance: str = "") -> None:
@@ -755,9 +763,14 @@ class LLMContextManager:
         await compaction.compact(self, prompt, schema, kind)
 
     async def close(self) -> None:
-        """Close the OpenAI and HTTP clients."""
+        """Close the provider and HTTP clients."""
         if self.client is not None:
-            await self.client.close()
+            underlying = getattr(self.client, "client", self.client)
+            close_method = getattr(self.client, "close", None) or getattr(underlying, "close", None)
+            if callable(close_method):
+                res = close_method()
+                if asyncio.iscoroutine(res):
+                    await res
             self.client = None
         await self.budget.close()
 

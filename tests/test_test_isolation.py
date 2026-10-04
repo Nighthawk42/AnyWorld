@@ -30,7 +30,7 @@ def test_default_transcripts_stay_in_disposable_working_directory(tmp_path):
     """Default application paths cannot write game artifacts into the repository."""
     transcript = GameTranscript()
     assert Path.cwd() == tmp_path
-    assert transcript.log_dir.resolve() == tmp_path / ".logged_games"
+    assert transcript.log_dir.resolve() == tmp_path.resolve() / ".logged_games"
 
 
 def test_network_guard_blocks_external_and_backend_transports(request):

@@ -22,20 +22,34 @@ automatically approved product changes. Proposed fixes belong in TASKS.md.
 - `app.py` validates passwords and starts Uvicorn with HTTPS. `api/tls_bootstrap.py` handles
   IP discovery and self-signed certificates under `certs/`.
 - `core/config.py` exports lowercase singleton `settings`. The llm schema additionally contains
-  provider (`compatible`/`openai`), tokenizer_encoding, system_prompt and shared
-  `reasoning_effort`. Compatible `/props`
+  provider (`compatible`, `openai` or another any-llm provider name), tokenizer_encoding,
+  system_prompt and shared `reasoning_effort`. Compatible `/props`
   discovery overrides context_window_size when successful. Server passwords must be distinct.
   Settings merge `AD_` environment overrides over YAML, using `__` for nested fields;
   `AD_SERVER__HOST_PASSWORD` and `AD_SERVER__PLAYER_PASSWORD` override YAML credentials.
   Project `.env` values load without overwriting process variables. Direct OpenAI uses only
   `AD_OPENAI_API_KEY`; `config.example.yaml` is a manual template, not an automatic source.
-- `LLMContextManager._create_client()` clears SDK organization/project after construction so
+  The separate `audio` schema configures an optional audio.cpp-compatible speech server
+  (endpoint, api_key, tts/stt models, default voice, speaking rate, voice cloning, DM voice
+  reference, request timeout); it is disabled by default.
+- `LLMContextManager._create_client()` builds the client with `AnyLLM.create(...,
+  unified_exceptions=True)`. `compatible` maps to any-llm's openai provider with `api_base` set to
+  the endpoint, as do llamacpp/ollama/lmstudio/vllm. `provider.attempt()` uses `acompletion` for
+  any-llm clients and treats any-llm errors like their OpenAI equivalents for retries.
+  Provider-specific branches elsewhere (output-cap key, tokenizer, `/props`, strict schemas,
+  narration language) still distinguish only `compatible` and `openai`.
+  The factory clears organization/project on the underlying SDK client after construction so
   inherited `OPENAI_ORG_ID` and `OPENAI_PROJECT_ID` do not scope game requests. Passing None to
   the SDK constructor alone still reads these variables. Leave the process environment unchanged.
   OpenAI narration follows the scenario's language; compatible-provider narration requests English.
 - `api/server.py` owns GET /, /static, /ws/{client_id}, ConnectionManager and an engine/resolver
   per ASGI lifespan. Lifespan validates passwords and closes sockets, tasks and clients.
   Client IDs must be canonical UUIDs. No multi-session or multi-worker coordination exists.
+- `api/audio.py` adds `/api/audio/status`, `/models`, `/speech` and `/transcribe`, backed by
+  `logic/audio.py` AudioService (owned by the lifespan, closed after the resolver). These HTTP
+  routes are not authenticated and transcription uploads are unbounded; see TASKS.md.
+  Narration audio covers only public round text. `static/js/audio.js` adds the push-to-talk
+  microphone and per-round Listen buttons when the server reports audio enabled.
 - `logic/models.py` contains GameState (including ENDED), Player and dependency protocols.
   `logic/lobby.py` owns authentication, scenario setup, start/end, chat and reconnect snapshots.
   `logic/engine.py` owns the lock, turn deque, action buffer and round orchestration.

@@ -15,7 +15,9 @@ from pydantic import ValidationError
 from core.config import settings
 from core.schemas import ClientPayload, ServerEvent, validate_client_data
 from api.admission import WindowBudget, receive_payload, origin_allowed, source_address
+from api.audio import router as audio_router
 from api.windows_asyncio import install_windows_socket_cleanup
+from logic.audio import AudioService
 from logic.engine import GameEngine
 from logic.llm_manager import LLMContextManager
 
@@ -197,15 +199,21 @@ def create_app(resolver_factory=LLMContextManager) -> FastAPI:
         application.state.history_messages = WindowBudget(30, 10)
         application.state.manager = manager
         application.state.engine = engine
+        audio_service = AudioService()
+        application.state.audio_service = audio_service
         try:
             yield
         finally:
             try:
                 await engine.shutdown()
             finally:
-                await manager.close()
+                try:
+                    await manager.close()
+                finally:
+                    await audio_service.close()
 
     application = FastAPI(title="Anyworld", lifespan=lifespan)
+    application.include_router(audio_router)
     application.mount("/static", StaticFiles(directory=PROJECT_ROOT / "static"), name="static")
     templates = Jinja2Templates(directory=PROJECT_ROOT / "templates")
 

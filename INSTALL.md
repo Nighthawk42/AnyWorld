@@ -134,6 +134,19 @@ not total game consumption.
 To switch back, restore `provider: "compatible"`, the local endpoint, and the local model name.
 The `.env` file may remain in place; its key is only used when `provider: "openai"` is selected.
 
+### Other providers (any-llm)
+
+Model calls go through [any-llm](https://github.com/mozilla-ai/any-llm), so `provider` also accepts
+other any-llm provider names, for example `anthropic`, `mistral`, `ollama`, `llamacpp`, `lmstudio`
+or `vllm`. For `ollama`, `llamacpp`, `lmstudio` and `vllm`, `endpoint` is passed as the API base;
+hosted providers use their own default endpoint. Supply the key in `api_key` (for example
+`AD_LLM__API_KEY` in `.env`); `AD_OPENAI_API_KEY` applies only to `provider: openai`.
+
+Only `compatible` and `openai` have been tested end to end. Other providers currently take the
+OpenAI code paths for output caps, tokenization and structured-output schemas, skip llama.cpp
+`/props` discovery (configure `context_window_size`), and request English narration. They must
+support structured (JSON-schema) responses.
+
 For local backends, `endpoint` must support OpenAI-compatible structured chat completion parsing.
 `context_window_size` is an optional fallback value. When using a compatible backend, Anyworld
 still attempts to read the context size from the llama.cpp `/props` endpoint even when a value is
@@ -230,6 +243,32 @@ keeps at most 500 game-log elements (including the banner) and 300 chat entries.
 the first item in the game pane and scrolls with its contents.
 
 The title-only request uses at most 128 output tokens (or the initial output cap if lower).
+
+### Optional voice (audio.cpp)
+
+Anyworld can use an audio.cpp server, or another server with OpenAI-style `/v1/audio/speech` and
+`/v1/audio/transcriptions` endpoints, for narration playback (text-to-speech) and push-to-talk
+action input (speech-to-text). It is disabled by default:
+
+```yaml
+audio:
+  enabled: true
+  endpoint: "http://localhost:8080"
+  api_key: "sk-no-key-required"
+  tts_model: "pocket-tts"
+  stt_model: "qwen3-asr"
+  default_voice: null
+  speaking_rate: 1.0
+  voice_cloning_enabled: false
+  dm_voice_reference_path: null # path on the speech server, used when cloning is enabled
+  dm_voice_reference_text: null
+  request_timeout_seconds: 30.0
+```
+
+When enabled, each round result shows a **Listen** button and a microphone button appears next
+to the action input in browsers that support recording. The server proxies the speech server
+through `/api/audio/*`. These routes are not yet tied to game authentication, so anyone who can reach the
+game port can use the speech server through them; enable audio only on trusted networks.
 
 ## Run
 
