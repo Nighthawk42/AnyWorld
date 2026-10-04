@@ -21,6 +21,10 @@ automatically approved product changes. Proposed fixes belong in TASKS.md.
 - Python 3.11+, FastAPI, Pydantic, vanilla JS/CSS. Package and CLI name: `anyworld`.
 - `app.py` validates passwords and starts Uvicorn with HTTPS. `api/tls_bootstrap.py` handles
   IP discovery and self-signed certificates under `certs/`.
+- `Dockerfile` runs `python app.py` as non-root user `anyworld` on port 4141 (curl health check).
+  `docker-compose.yml` loads `.env` via env_file, requires both passwords, defaults LLM/audio
+  endpoints to `host.docker.internal` and keeps transcripts, journals and certificates in named
+  volumes. The image copies only app sources, so `config.yaml` and `.env` are never baked in.
 - `core/config.py` exports lowercase singleton `settings`. The llm schema additionally contains
   provider (`compatible`, `openai` or another any-llm provider name), tokenizer_encoding,
   system_prompt and shared `reasoning_effort`. Compatible `/props`

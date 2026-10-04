@@ -46,6 +46,32 @@ py -3.11 -m venv venv
 .\venv\Scripts\python.exe app.py
 ```
 
+### Docker & Docker Compose
+
+To run Anyworld in a container:
+
+```bash
+# Copy and edit environment variables (set distinct passwords):
+cp .env.example .env
+
+# Build and start the container:
+docker compose up -d
+
+# Check health and view logs:
+docker compose ps
+docker compose logs -f
+```
+
+The service listens on port `4141` with automatic HTTPS certificate generation. Persistent volumes retain transcripts (`anyworld_transcripts`), journals (`anyworld_journals`), and certificates (`anyworld_certs`).
+
+Compose passes every `.env` value into the container, including `AD_OPENAI_API_KEY`, and refuses
+to start unless `AD_SERVER__HOST_PASSWORD` and `AD_SERVER__PLAYER_PASSWORD` are set. Inside the
+container, `localhost` is the container itself: leave `AD_LLM__ENDPOINT` and `AD_AUDIO__ENDPOINT`
+unset to reach servers on the Docker host through `host.docker.internal` (ports 8033 and 8080),
+or set them to an address the container can reach. The image contains no `config.yaml`; configure
+it through `AD_` variables, or mount a file and point `AD_CONFIG_PATH` at it. The certificate is generated for the container's detected address, so
+browsers will show the usual self-signed warning and may also report an address mismatch.
+
 ## Configure
 
 Edit `config.yaml` in the project directory before launching. Set `host_password` and

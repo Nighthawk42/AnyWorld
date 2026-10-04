@@ -1,0 +1,37 @@
+services:
+  anyworld:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: anyworld:latest
+    container_name: anyworld
+    restart: unless-stopped
+    ports:
+      - "4141:4141"
+    # Passes every .env value (including AD_OPENAI_API_KEY) into the container.
+    env_file:
+      - .env
+    environment:
+      # Passwords are required and must be distinct; compose refuses to start without them.
+      - AD_SERVER__HOST_PASSWORD=${AD_SERVER__HOST_PASSWORD:?set AD_SERVER__HOST_PASSWORD in .env}
+      - AD_SERVER__PLAYER_PASSWORD=${AD_SERVER__PLAYER_PASSWORD:?set AD_SERVER__PLAYER_PASSWORD in .env}
+      - AD_LLM__PROVIDER=${AD_LLM__PROVIDER:-compatible}
+      - AD_LLM__ENDPOINT=${AD_LLM__ENDPOINT:-http://host.docker.internal:8033/v1}
+      - AD_LLM__API_KEY=${AD_LLM__API_KEY:-sk-no-key-required}
+      - AD_LLM__MODEL_NAME=${AD_LLM__MODEL_NAME:-local}
+      - AD_AUDIO__ENABLED=${AD_AUDIO__ENABLED:-false}
+      - AD_AUDIO__ENDPOINT=${AD_AUDIO__ENDPOINT:-http://host.docker.internal:8080}
+    volumes:
+      - anyworld_transcripts:/app/.logged_games
+      - anyworld_journals:/app/.public_games
+      - anyworld_certs:/app/certs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  anyworld_transcripts:
+    name: anyworld_transcripts
+  anyworld_journals:
+    name: anyworld_journals
+  anyworld_certs:
+    name: anyworld_certs
