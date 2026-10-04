@@ -47,7 +47,8 @@ from the repository directory, then open the local game page at https://127.0.0.
    If a round fails, the host can retry it with the same actions and dice, or end the game.
 
 Narration is rendered as Markdown, and actions and chat support inline Markdown such as
-`**bold**`, `*italics*` and `` `code` ``.
+`**bold**`, `*italics*` and `` `code` ``. Pick a color theme (Dungeon, Catppuccin Mocha/Latte
+or GitHub Dark/Light) from the selector on the sign-in card or title bar; your browser remembers it.
 
 The player limit includes the host. The server assigns idle actions to disconnected players
 so the game can continue. Story quality and consistency depend on the model;

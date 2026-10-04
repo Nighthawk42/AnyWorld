@@ -1,14 +1,27 @@
-:root {
+:root,
+html[data-theme="default"] {
+    --color-scheme: dark;
     --background: #0b1212;
     --panel: #141f20;
     --panel-raised: #1c2b2b;
     --text: #e0e9e5;
+    --text-bright: #ffffff;
     --muted: #9aaca8;
     --border: rgb(216 224 231 / 10%);
     --accent: #7bc9ab;
     --accent-bright: #a3e6c9;
     --action-accent: #ddb780;
     --error: #e47d7d;
+    --input-bg: #0c1717;
+    --input-disabled: #142020;
+    --button-bg: #203d34;
+    --button-hover: #2b5043;
+    --button-border: rgb(123 201 171 / 55%);
+    --log-bg: radial-gradient(ellipse at top, #162724, #0b1212 65%);
+    --chat-bg: linear-gradient(180deg, #172322, #101919);
+    --state-bg: rgb(27 44 40 / 65%);
+    --code-bg: #0d1a19;
+    --pre-bg: #091313;
     /* Bright colors are used by the active round; past rounds are dimmed below. */
     --player-0: #79c0ff;
     --player-1: #ffa657;
@@ -18,6 +31,138 @@
     --player-5: #f2cc60;
     --player-6: #a5d6ff;
     --player-7: #ff9bce;
+}
+
+html[data-theme="catppuccin-mocha"] {
+    --color-scheme: dark;
+    --background: #1e1e2e;
+    --panel: #181825;
+    --panel-raised: #313244;
+    --text: #cdd6f4;
+    --text-bright: #ffffff;
+    --muted: #a6adc8;
+    --border: rgba(180, 190, 254, 0.15);
+    --accent: #cba6f7;
+    --accent-bright: #f5c2e7;
+    --action-accent: #f9e2af;
+    --error: #f38ba8;
+    --input-bg: #11111b;
+    --input-disabled: #181825;
+    --button-bg: #313244;
+    --button-hover: #45475a;
+    --button-border: rgba(203, 166, 247, 0.4);
+    --log-bg: radial-gradient(ellipse at top, #313244, #1e1e2e 65%);
+    --chat-bg: linear-gradient(180deg, #181825, #11111b);
+    --state-bg: rgba(49, 50, 68, 0.65);
+    --code-bg: #11111b;
+    --pre-bg: #11111b;
+    --player-0: #89b4fa;
+    --player-1: #fab387;
+    --player-2: #a6e3a1;
+    --player-3: #f38ba8;
+    --player-4: #cba6f7;
+    --player-5: #f9e2af;
+    --player-6: #94e2d5;
+    --player-7: #eba0ac;
+}
+
+html[data-theme="catppuccin-latte"] {
+    --color-scheme: light;
+    --background: #eff1f5;
+    --panel: #e6e9ef;
+    --panel-raised: #ccd0da;
+    --text: #4c4f69;
+    --text-bright: #202231;
+    --muted: #6c6f85;
+    --border: rgba(76, 79, 105, 0.18);
+    --accent: #8839ef;
+    --accent-bright: #7287fd;
+    --action-accent: #df8e1d;
+    --error: #d20f39;
+    --input-bg: #ffffff;
+    --input-disabled: #bcc0cc;
+    --button-bg: #dce0e8;
+    --button-hover: #ccd0da;
+    --button-border: rgba(136, 57, 239, 0.4);
+    --log-bg: radial-gradient(ellipse at top, #e6e9ef, #eff1f5 65%);
+    --chat-bg: linear-gradient(180deg, #e6e9ef, #dce0e8);
+    --state-bg: rgba(230, 233, 239, 0.85);
+    --code-bg: #e6e9ef;
+    --pre-bg: #dce0e8;
+    --player-0: #1e66f5;
+    --player-1: #fe640b;
+    --player-2: #40a02b;
+    --player-3: #d20f39;
+    --player-4: #8839ef;
+    --player-5: #df8e1d;
+    --player-6: #179299;
+    --player-7: #ea76cb;
+}
+
+html[data-theme="github-dark"] {
+    --color-scheme: dark;
+    --background: #0d1117;
+    --panel: #161b22;
+    --panel-raised: #21262d;
+    --text: #e6edf3;
+    --text-bright: #ffffff;
+    --muted: #848d97;
+    --border: #30363d;
+    --accent: #2f81f7;
+    --accent-bright: #58a6ff;
+    --action-accent: #d29922;
+    --error: #f85149;
+    --input-bg: #010409;
+    --input-disabled: #161b22;
+    --button-bg: #21262d;
+    --button-hover: #30363d;
+    --button-border: #30363d;
+    --log-bg: radial-gradient(ellipse at top, #161b22, #0d1117 65%);
+    --chat-bg: linear-gradient(180deg, #161b22, #0d1117);
+    --state-bg: rgba(22, 27, 34, 0.8);
+    --code-bg: #161b22;
+    --pre-bg: #010409;
+    --player-0: #58a6ff;
+    --player-1: #f0883e;
+    --player-2: #3fb950;
+    --player-3: #f85149;
+    --player-4: #bc8cff;
+    --player-5: #d29922;
+    --player-6: #79c0ff;
+    --player-7: #ff7b72;
+}
+
+html[data-theme="github-light"] {
+    --color-scheme: light;
+    --background: #ffffff;
+    --panel: #f6f8fa;
+    --panel-raised: #eaeef2;
+    --text: #1f2328;
+    --text-bright: #000000;
+    --muted: #656d76;
+    --border: #d0d7de;
+    --accent: #0969da;
+    --accent-bright: #0550ae;
+    --action-accent: #9a6700;
+    --error: #cf222e;
+    --input-bg: #ffffff;
+    --input-disabled: #f6f8fa;
+    --button-bg: #f6f8fa;
+    --button-hover: #f3f4f6;
+    --button-border: #d0d7de;
+    --log-bg: radial-gradient(ellipse at top, #f6f8fa, #ffffff 65%);
+    --chat-bg: linear-gradient(180deg, #f6f8fa, #ffffff);
+    --state-bg: rgba(246, 248, 250, 0.9);
+    --code-bg: #eff1f3;
+    --pre-bg: #f6f8fa;
+    --player-0: #0969da;
+    --player-1: #bc4c00;
+    --player-2: #1a7f37;
+    --player-3: #cf222e;
+    --player-4: #8250df;
+    --player-5: #9a6700;
+    --player-6: #0550ae;
+    --player-7: #bf3989;
 }
 * {
     box-sizing: border-box;
@@ -35,7 +180,7 @@ body {
     font-family: "Segoe UI", system-ui, sans-serif;
     font-size: 0.9375rem;
     line-height: 1.6;
-    color-scheme: dark;
+    color-scheme: var(--color-scheme, dark);
 }
 [hidden] {
     display: none !important;
@@ -55,7 +200,7 @@ body {
 }
 #chat-pane {
     grid-area: chat;
-    background: linear-gradient(180deg, #172322, #101919);
+    background: var(--chat-bg);
     min-width: 0;
     display: flex;
     min-height: 0;
@@ -156,9 +301,24 @@ body {
     border-radius: 50%;
     background: conic-gradient(var(--accent) 0deg, var(--accent) 0deg, var(--border) 0deg);
 }
-#player-identity {
+#title-actions {
     position: absolute;
     right: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.theme-select {
+    height: 1.55rem;
+    padding: 0 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 0.35rem;
+    background: var(--input-bg);
+    color: var(--text);
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+#player-identity {
     padding: 0.15rem 0.45rem;
     border: 1px solid var(--border);
     border-radius: 999px;
@@ -170,8 +330,8 @@ body {
     position: relative;
     grid-area: log;
     min-width: 0;
-    background: radial-gradient(ellipse at top, #162724, #0b1212 65%);
-    scrollbar-color: #3b5650 transparent;
+    background: var(--log-bg);
+    scrollbar-color: var(--muted) transparent;
 }
 #game-banner {
     display: block;
@@ -191,7 +351,7 @@ textarea,
 button {
     border: 1px solid var(--border);
     border-radius: 0.65rem;
-    background: #0c1717;
+    background: var(--input-bg);
     color: inherit;
     font: inherit;
     transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease,
@@ -213,21 +373,82 @@ textarea {
     width: 100%;
     border: 0;
     border-radius: 0;
+    background: var(--input-bg);
 }
 #action-input:disabled {
-    background: #142020;
+    background: var(--input-disabled);
     color: var(--muted);
     cursor: not-allowed;
 }
+.mic-btn {
+    flex: 0 0 3.2rem;
+    border: 0;
+    border-left: 1px solid var(--border);
+    border-radius: 0;
+    background: var(--input-bg);
+    cursor: pointer;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.mic-btn:hover:not(:disabled) {
+    background: var(--button-hover);
+    transform: none;
+}
+.mic-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--input-disabled);
+}
+.mic-btn.recording {
+    background: #4a1515 !important;
+    border-color: #ff4d4d;
+    box-shadow: inset 0 0 8px #ff4d4d;
+    animation: mic-pulse 1.2s infinite ease-in-out;
+}
+@keyframes mic-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(0.96); }
+}
+.tts-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 0.6rem;
+    padding: 0.15rem 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: 0.4rem;
+    background: transparent;
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: normal;
+    cursor: pointer;
+    vertical-align: middle;
+}
+.tts-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgb(123 201 171 / 12%);
+    transform: none;
+}
+.tts-btn.playing {
+    border-color: var(--accent-bright);
+    color: var(--accent-bright);
+    background: rgb(123 201 171 / 20%);
+}
 button {
     padding: 0.65rem 1rem;
-    border-color: rgb(123 201 171 / 55%);
-    background: #203d34;
+    border-color: var(--button-border);
+    background: var(--button-bg);
+    color: var(--text);
     cursor: pointer;
 }
 button:hover:not(:disabled) {
     border-color: var(--accent-bright);
-    background: #2b5043;
+    background: var(--button-hover);
     transform: translateY(-1px);
 }
 button:disabled {
@@ -325,7 +546,7 @@ button:disabled {
     padding: 1rem 1.15rem;
     border-left: 3px solid var(--accent);
     border-radius: 0.65rem;
-    background: rgb(27 44 40 / 65%);
+    background: var(--state-bg);
     color: var(--text);
 }
 .state-round-label {
@@ -350,7 +571,7 @@ button:disabled {
     padding: 0.15rem 0.35rem;
     border: 1px solid var(--border);
     border-radius: 0.3rem;
-    background: #0d1a19;
+    background: var(--code-bg);
     color: var(--accent);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.88em;
@@ -361,7 +582,7 @@ button:disabled {
     overflow-x: auto;
     border: 1px solid var(--border);
     border-radius: 0.5rem;
-    background: #091313;
+    background: var(--pre-bg);
 }
 .markdown-body pre code {
     padding: 0;
@@ -386,11 +607,11 @@ button:disabled {
     margin: 0.2rem 0;
 }
 .markdown-body strong {
-    color: #fff;
+    color: var(--text-bright);
     font-weight: 600;
 }
 .markdown-body em {
-    color: #e5edea;
+    color: var(--text);
     font-style: italic;
 }
 .markdown-body hr {
@@ -408,19 +629,19 @@ button:disabled {
     padding: 0.1rem 0.3rem;
     border: 1px solid var(--border);
     border-radius: 0.25rem;
-    background: #0d1a19;
+    background: var(--code-bg);
     color: var(--accent);
     font-size: 0.88em;
 }
 .chat-content strong,
 .action-content strong,
 .resolution-content strong {
-    color: #fff;
+    color: var(--text-bright);
 }
 .chat-content em,
 .action-content em,
 .resolution-content em {
-    color: #e5edea;
+    color: var(--text);
 }
 .round-heading {
     margin: 1.8rem 0 0.9rem;

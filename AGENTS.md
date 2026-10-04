@@ -177,6 +177,9 @@ Scenario text, round narration, outcomes, actions and chat render as Markdown th
 `static/js/vendor/marked.min.js` and `purify.min.js` (`static/js/markdown.js`, tag/attribute
 allowlist); never assign model or player text to innerHTML without that sanitizer. Plain-text
 fallbacks apply if the libraries are missing.
+Themes (default "Dungeon", Catppuccin Mocha/Latte, GitHub Dark/Light) are CSS variable sets keyed
+by `data-theme` on `<html>`. `static/js/theme.js` loads in `<head>` to avoid a flash, syncs every
+`.theme-select` (title bar and login card) and stores the choice in localStorage `anyworld_theme`.
 Script/CSS URLs use manual cache versions in
 `templates/index.html`; bump the relevant version when changing an asset. The client uses
 ws/wss according to page protocol and the fixed `/ws/{client_id}` route.
