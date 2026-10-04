@@ -46,6 +46,9 @@ from the repository directory, then open the local game page at https://127.0.0.
 5. Use party chat at any time, including while the AI is responding. Chat is not sent to the AI.
    If a round fails, the host can retry it with the same actions and dice, or end the game.
 
+Narration is rendered as Markdown, and actions and chat support inline Markdown such as
+`**bold**`, `*italics*` and `` `code` ``.
+
 The player limit includes the host. The server assigns idle actions to disconnected players
 so the game can continue. Story quality and consistency depend on the model;
 the game cannot guarantee that it follows every instruction perfectly.

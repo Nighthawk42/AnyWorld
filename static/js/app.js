@@ -100,17 +100,19 @@ function handleMessage(message, replayed = false) {
             }
         }
     } else if (type === "chat_echo") {
-        appendText(
+        appendChat(
             elements.chatMessages,
-            `${payload.name}: ${payload.chat}`,
+            payload.name,
+            payload.chat,
             "chat-entry",
             MAX_CHAT_ENTRIES,
         );
     } else if (type === "system_msg") {
-        appendText(
+        appendChat(
             elements.chatMessages,
-            `System: ${payload.msg}`,
-            "chat-entry",
+            "System",
+            payload.msg,
+            "chat-entry system-chat",
             MAX_CHAT_ENTRIES,
         );
         if (payload.msg === "The game has started.") {

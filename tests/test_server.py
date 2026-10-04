@@ -20,6 +20,10 @@ def test_index_and_static_assets_are_served() -> None:
     assert "WebSocket" in script.text
     assert stylesheet.status_code == 200
     assert "grid-template-areas" in stylesheet.text
+    with TestClient(app) as client:
+        assert client.get("/static/js/markdown.js").status_code == 200
+        assert client.get("/static/js/vendor/marked.min.js").status_code == 200
+        assert client.get("/static/js/vendor/purify.min.js").status_code == 200
 
 
 def test_websocket_rejects_malformed_client_id() -> None:

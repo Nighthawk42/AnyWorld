@@ -41,8 +41,19 @@ function renderResolution(payload) {
                 `dice-entry current-round${playerColorClass(player)}`);
         });
         Object.entries(payload.player_resolutions || {}).forEach(([player, resolution]) => {
-            appendText(elements.log, `[${player}] ${resolution}`,
-                `resolution-entry current-round${playerColorClass(player)}`);
+            const entry = document.createElement("p");
+            entry.className = `resolution-entry current-round${playerColorClass(player)}`;
+            const label = document.createElement("strong");
+            label.textContent = `[${player}] `;
+            const content = document.createElement("span");
+            content.className = "resolution-content";
+            if (window.renderMarkdownInline) {
+                content.innerHTML = window.renderMarkdownInline(resolution);
+            } else {
+                content.textContent = resolution;
+            }
+            entry.append(label, content);
+            appendEntry(elements.log, entry, MAX_LOG_ENTRIES);
         });
     });
     markRoundComplete();
@@ -56,6 +67,26 @@ function trimContainer(container, maximum) {
         }
         removed?.remove();
     }
+}
+
+function appendChat(container, authorName, text, className = "chat-entry", maximum = MAX_CHAT_ENTRIES) {
+    if (!window.renderMarkdownInline) {
+        return appendText(container, authorName ? `${authorName}: ${text}` : text, className, maximum);
+    }
+    const entry = document.createElement("p");
+    entry.className = className;
+    if (authorName) {
+        const author = document.createElement("strong");
+        author.className = "chat-author";
+        author.textContent = `${authorName}: `;
+        entry.appendChild(author);
+    }
+    const content = document.createElement("span");
+    content.className = "chat-content";
+    content.innerHTML = window.renderMarkdownInline(text);
+    entry.appendChild(content);
+    appendEntry(container, entry, maximum);
+    return entry;
 }
 
 function appendText(container, text, className, maximum = MAX_LOG_ENTRIES) {
@@ -136,11 +167,19 @@ function showAction(roundNumber, playerName, action, colorIndex = null) {
     }
     renderedActions.add(actionKey);
     startRound(roundNumber);
-    const entry = appendText(
-        elements.log,
-        `${playerName} attempts: ${action}`,
-        `action-entry current-round${playerColorClass(playerName)}`,
-    );
+    const entry = document.createElement("p");
+    entry.className = `action-entry current-round${playerColorClass(playerName)}`;
+    const label = document.createElement("strong");
+    label.textContent = `${playerName} attempts: `;
+    const content = document.createElement("span");
+    content.className = "action-content";
+    if (window.renderMarkdownInline) {
+        content.innerHTML = window.renderMarkdownInline(action);
+    } else {
+        content.textContent = action;
+    }
+    entry.append(label, content);
+    appendEntry(elements.log, entry, MAX_LOG_ENTRIES);
     entry.dataset.actionKey = actionKey;
 }
 
@@ -164,9 +203,13 @@ function appendScenario(scenario, original = false) {
     const label = document.createElement("strong");
     label.className = "state-round-label";
     label.textContent = original ? "Host-typed scenario prompt" : "Opening scenario";
-    const narrative = document.createElement("p");
-    narrative.className = "state-narrative";
-    narrative.textContent = scenario;
+    const narrative = document.createElement("div");
+    narrative.className = "state-narrative markdown-body";
+    if (window.renderMarkdown) {
+        narrative.innerHTML = window.renderMarkdown(scenario);
+    } else {
+        narrative.textContent = scenario;
+    }
     entry.append(label, narrative);
     const anchor = (!original && elements.log.querySelector(".original-scenario"))
         || document.getElementById("game-banner");
@@ -184,11 +227,18 @@ function appendState(text, roundNumber = null) {
     label.className = "state-round-label";
     label.textContent = roundNumber ? `Round ${roundNumber} result` : "Opening scenario";
 
-    const narrative = document.createElement("p");
-    narrative.className = "state-narrative";
-    narrative.textContent = text;
+    const narrative = document.createElement("div");
+    narrative.className = "state-narrative markdown-body";
+    if (window.renderMarkdown) {
+        narrative.innerHTML = window.renderMarkdown(text);
+    } else {
+        narrative.textContent = text;
+    }
 
     entry.append(label, narrative);
+    if (window.attachTTSButton) {
+        window.attachTTSButton(entry, text);
+    }
     appendEntry(elements.log, entry, MAX_LOG_ENTRIES);
 }
 
@@ -228,6 +278,9 @@ function showHostStep(state) {
 function applyTurn(activePlayerId, activePlayerName) {
     const ownTurn = activePlayerId === clientSession.clientId;
     elements.actionInput.disabled = !ownTurn;
+    if (elements.micButton) {
+        elements.micButton.disabled = !ownTurn;
+    }
     elements.actionInput.placeholder = ownTurn
         ? "Enter your action..."
         : `Waiting for ${activePlayerName || "the next turn"}...`;
